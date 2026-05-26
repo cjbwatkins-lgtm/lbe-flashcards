@@ -737,10 +737,14 @@ function nameChoices() {
 
 function fretChoices() {
   const cor = { string: curNote.string, fret: curNote.fret };
-  const samePos = (n) => n.string === curNote.string && n.fret === curNote.fret;
-  // Distractors: different fret position, different staff pos preferred
-  let pool = activeNotes().filter(n => !samePos(n) && Math.abs(n.sp - curNote.sp) >= 2);
-  if (pool.length < 3) pool = activeNotes().filter(n => !samePos(n));
+  const samePos  = (n) => n.string === curNote.string && n.fret === curNote.fret;
+  // Exclude same note name (any octave) from distractors — prevents "G on A string" appearing
+  // as a wrong-octave trap when the card is for G2 vs G3
+  const enh = curNote.sharp ? SHARP_TO_FLAT[curNote.name] : (curNote.flat ? FLAT_TO_SHARP[curNote.name] : null);
+  const sameName = (n) => n.name === curNote.name || (enh && n.name === enh);
+  // Distractors: different fret position, different note name, different staff pos preferred
+  let pool = activeNotes().filter(n => !samePos(n) && !sameName(n) && Math.abs(n.sp - curNote.sp) >= 2);
+  if (pool.length < 3) pool = activeNotes().filter(n => !samePos(n) && !sameName(n));
   // Dedup by (string, fret) so enharmonic variants don't double-appear
   const seen = new Set([`${curNote.string}-${curNote.fret}`]);
   const dis = [];
@@ -750,7 +754,7 @@ function fretChoices() {
     if (dis.length >= 3) break;
   }
   if (dis.length < 3) {
-    for (const n of ALL.filter(n => !samePos(n)).sort(() => Math.random()-0.5)) {
+    for (const n of ALL.filter(n => !samePos(n) && !sameName(n)).sort(() => Math.random()-0.5)) {
       const k = `${n.string}-${n.fret}`;
       if (!seen.has(k)) { seen.add(k); dis.push(n); }
       if (dis.length >= 3) break;
