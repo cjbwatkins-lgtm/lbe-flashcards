@@ -208,7 +208,7 @@ body {
       <span class="bm-ess">ESSENTIALS</span>
     </div>
     <div class="bm-rule"></div>
-    <div class="bm-sub">Note Flashcards</div>
+    <div class="bm-sub">Note Flashcards <span style="font-size:0.7rem;color:#444;margin-left:6px">v2026-05-26b</span></div>
   </div>
   <div id="tuning-picker" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;"></div>
   <div class="menu" id="tier-menu"></div>
@@ -747,9 +747,12 @@ function renderBfwd(a) {
   nw.appendChild(neckSVG(curNote.string, curNote.fret));
   a.appendChild(nw);
 
-  const fl = Object.assign(document.createElement('div'),{className:'fret-lbl',style:'margin-bottom:6px'});
+  const fl = Object.assign(document.createElement('div'),{className:'fret-lbl',style:'margin-bottom:2px'});
   fl.textContent = `${STR()[curNote.string]} string · fret ${curNote.fret}`;
   a.appendChild(fl);
+  const hint2 = Object.assign(document.createElement('div'),{className:'staff-hint',style:'margin-bottom:8px'});
+  hint2.textContent = 'What note is played here?';
+  a.appendChild(hint2);
 
   const grid = Object.assign(document.createElement('div'),{className:'choices'});
   nameChoices().forEach(nm => {
@@ -871,7 +874,15 @@ function handleChoice(correct, btn, grid) {
     const fba = document.getElementById('fb-area');
     fba.innerHTML = '';
     const fb = Object.assign(document.createElement('div'), {className:'fb no'});
-    fb.textContent = 'Try again';
+    // Show what was tapped so user can see the difference
+    if (curType === 'Bfwd') {
+      fb.textContent = `✗ ${dispName(btn.dataset.name)} is not right — try again`;
+    } else if (curType === 'Brev') {
+      const bStr = parseInt(btn.dataset.string), bFret = parseInt(btn.dataset.fret);
+      fb.textContent = `✗ Not quite — try again`;
+    } else {
+      fb.textContent = 'Try again';
+    }
     fba.appendChild(fb);
     return;
   }
