@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bass Notes – LBE Flashcards</title>
+<style>
+:root {
+  --bg: #0f0f14;
+  --card: #1a1a24;
+  --border: #2a2a38;
+  --accent: #e8a838;
+  --green: #4fc3a1;
+  --red: #e85e5e;
+  --text: #f0f0f0;
+  --muted: #777;
+  --r: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; display: flex; justify-content: center;
+}
+#app { width: 100%; max-width: 500px; padding: 16px 16px 40px; }
+.hidden { display: none !important; }
+
+/* HOME */
+.hdr { text-align: center; padding: 28px 0 20px; }
+.hdr h1 { font-size: 1.5rem; color: var(--accent); }
+.hdr p { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+.lbadge {
+  display: inline-block; background: var(--accent); color: #000;
+  font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+}
+.menu { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.btn {
+  background: var(--card); color: var(--text); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 14px 18px; font-size: 1rem;
+  cursor: pointer; text-align: left; transition: border-color 0.15s; width: 100%;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.pri { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+.btn.pri:hover { background: #f0b845; }
+.btn-lbl { font-weight: 600; }
+.btn-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.btn.pri .btn-sub { color: #5a4200; }
+.btn.ghost { color: var(--muted); font-size: 0.82rem; padding: 10px 18px; }
+
+/* SESSION HEADER */
+.sess-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0 14px;
+}
+.sess-info { font-size: 0.82rem; color: var(--muted); }
+.mbadge {
+  background: var(--red); color: #fff; border-radius: 10px;
+  padding: 3px 10px; font-size: 0.78rem; font-weight: 700;
+}
+
+/* CARD */
+.card {
+  background: var(--card); border-radius: var(--r);
+  padding: 18px 18px 12px; display: flex; flex-direction: column;
+  align-items: center; gap: 10px; min-height: 160px;
+}
+.card-lbl {
+  align-self: flex-start; font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted);
+}
+.note-big { font-size: 2.6rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.note-big sup { font-size: 1.2rem; }
+.fret-lbl { font-size: 0.85rem; color: var(--muted); }
+.staff-hint { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: -4px; }
+
+/* STAFF SVG */
+.staff-svg { width: 100%; touch-action: none; display: block; }
+.sz { cursor: pointer; fill: transparent; transition: fill 0.1s; }
+.sz:hover { fill: rgba(232,168,56,0.12); }
+
+/* CHOICES */
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; width: 100%; }
+@media (max-width: 340px) { .choices { grid-template-columns: 1fr; } }
+.cbtn {
+  background: #1e1e2c; border: 1.5px solid var(--border); border-radius: 10px;
+  color: var(--text); padding: 13px 8px; font-size: 0.93rem;
+  cursor: pointer; transition: border-color 0.12s, background 0.12s;
+  min-height: 50px; text-align: center; line-height: 1.3;
+}
+.cbtn:hover:not(:disabled) { border-color: var(--accent); }
+.cbtn.ok { background: rgba(79,195,161,0.15); border-color: var(--green); color: var(--green); }
+.cbtn.no { background: rgba(232,94,94,0.15); border-color: var(--red); color: var(--red); }
+.cbtn:disabled { cursor: default; }
+
+/* FEEDBACK */
+.fb {
+  width: 100%; padding: 10px 14px; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 600; text-align: center; margin-top: 8px;
+}
+.fb.ok { background: rgba(79,195,161,0.12); color: var(--green); }
+.fb.no { background: rgba(232,94,94,0.12); color: var(--red); }
+.hdr-btn {
+  background: var(--card); border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--muted); padding: 6px 13px; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.hdr-btn:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
+.hdr-btn:disabled { opacity: 0.35; cursor: default; }
+.hdr-next { background: var(--accent); color: #000; border-color: var(--accent); }
+.hdr-next:hover:not(:disabled) { opacity: 0.88; border-color: var(--accent); color: #000; }
+
+/* LEVEL UNLOCK TOAST */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #000; padding: 11px 22px;
+  border-radius: 24px; font-weight: 700; font-size: 0.9rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 99;
+  animation: toastIn 0.3s ease; white-space: nowrap;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(16px); } }
+
+/* SUMMARY */
+.sum-card { background: var(--card); border-radius: var(--r); padding: 22px; }
+.sum-card h2 { color: var(--accent); margin-bottom: 14px; }
+.srow {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem;
+}
+.srow:last-child { border-bottom: none; }
+.srow-lbl { color: var(--muted); }
+.srow-val { font-weight: 700; }
+.missed-sec { margin-top: 16px; }
+.missed-sec h3 { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.mtag {
+  display: inline-block; background: rgba(232,94,94,0.1); color: var(--red);
+  border: 1px solid rgba(232,94,94,0.25); border-radius: 6px;
+  padding: 3px 8px; font-size: 0.82rem; margin: 3px;
+}
+.sum-actions { display: flex; gap: 10px; margin-top: 18px; }
+.sum-actions .btn { text-align: center; flex: 1; }
+
+/* NECK SVG */
+.neck-svg { width: 100%; display: block; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="screen-home">
+  <div class="hdr">
+    <h1>Bass Notes</h1>
+    <p>Learn the notes on your bass</p>
+  </div>
+  <div id="tuning-picker" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;"></div>
+  <div class="menu" id="tier-menu"></div>
+</div>
+
+<!-- SESSION -->
+<div id="screen-session" class="hidden">
+  <div class="sess-hdr">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button class="hdr-btn" onclick="goHome()">⌂ Home</button>
+      <button class="hdr-btn hidden" id="back-btn" onclick="goBack()">← Back</button>
+      <button class="hdr-btn hdr-next hidden" id="next-btn" onclick="nextCard()">Next →</button>
+    </div>
+    <div class="sess-info" id="sess-info">0/0</div>
+  </div>
+  <div class="card" id="card-area"></div>
+  <div id="fb-area"></div>
+</div>
+
+<!-- SUMMARY -->
+<div id="screen-summary" class="hidden">
+  <div class="sum-card">
+    <h2>Nice work!</h2>
+    <div id="sum-stats"></div>
+    <div id="sum-missed" class="missed-sec hidden"></div>
+    <div class="sum-actions">
+      <button class="btn pri" onclick="startSession(S.tier)" style="text-align:center;">Go again</button>
+      <button class="btn" onclick="goHome()" style="text-align:center;">Done</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+<script>
+// ─── CONSTANTS ──────────────────────────────────────────────────────────────
+const NOTES12 = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const SHARP_TO_FLAT = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+const FLAT_TO_SHARP = {'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};
+
+// Circle of fourths from E — open strings first, then flat keys, then sharp keys
+// Db→C#, Gb→F# because bass players encounter these more often as sharps
+const NOTE_PROGRESSION = ['E','A','D','G','C','F','Bb','Eb','Ab','C#','F#','B'];
+const NOTE_ORDER = {};
+NOTE_PROGRESSION.forEach((n,i) => { NOTE_ORDER[n] = i; });
+// Bidirectional enharmonic mapping: whichever spelling isn't in the progression gets the same index
+const ENHARMONIC_PAIRS = [['C#','Db'],['D#','Eb'],['F#','Gb'],['G#','Ab'],['A#','Bb']];
+ENHARMONIC_PAIRS.forEach(([s,f]) => {
+  if (NOTE_ORDER[s] !== undefined && NOTE_ORDER[f] === undefined) NOTE_ORDER[f] = NOTE_ORDER[s];
+  if (NOTE_ORDER[f] !== undefined && NOTE_ORDER[s] === undefined) NOTE_ORDER[s] = NOTE_ORDER[f];
+});
+
+function dispName(nm) {
+  const s = typeof nm === 'string' ? nm : nm.name;
+  return s.endsWith('b') ? s.slice(0,-1)+'♭' : s;
+}
+
+const TIERS = {
+  beginner:     { label:'Beginner',     desc:'Start simple — just open E',        startCount: 1  },
+  intermediate: { label:'Intermediate', desc:'Open strings: E, A, D, G',          startCount: 4  },
+  advanced:     { label:'Advanced',     desc:'Open strings + C, F, B♭',      startCount: 7  },
+  expert:       { label:'Expert',       desc:'Full neck from day one',             startCount: 12 },
+};
+
+// staffPos = diatonic half-steps above G2 (bottom staff line).
+// Lines at even sp: 0=G2, 2=B2, 4=D3, 6=F3, 8=A3
+// Below staff: -1=F2, -2=E2 (1 ledger), -3=D2, -4=C2 (2 ledgers), -5=B1 (5-string low B)
+// Above staff: 9=B3, 10=C4 (1 ledger), 11=D4, 12=E4 (2 ledgers), 13=F4, 14=G4 (3 ledgers)
+const SP = {
+  'B1':-5,'C2':-4,'C#2':-4,'D2':-3,'D#2':-3,
+  'E2':-2,'F2':-1,'F#2':-1,
+  'G2':0,'G#2':0,'A2':1,'A#2':1,'B2':2,
+  'C3':3,'C#3':3,'D3':4,'D#3':4,'E3':5,'F3':6,'F#3':6,
+  'G3':7,'G#3':7,'A3':8,'A#3':8,'B3':9,
+  'C4':10,'C#4':10,'D4':11,'D#4':11,'E4':12,'F4':13,'F#4':13,'G4':14
+};
+
+// Tuning presets: openMidi[s] = midi of open string s (index = string number, highest=1)
+const TUNINGS = {
+  '4str':  { label:'4-string',  strings:4, openMidi:[null,55,50,45,40],    strNames:{1:'G',2:'D',3:'A',4:'E'} },
+  'dropD': { label:'Drop D',    strings:4, openMidi:[null,55,50,45,38],    strNames:{1:'G',2:'D',3:'A',4:'D'} },
+  '5str':  { label:'5-string',  strings:5, openMidi:[null,55,50,45,40,35], strNames:{1:'G',2:'D',3:'A',4:'E',5:'B'} },
+  '6str':  { label:'6-string',  strings:6, openMidi:[null,60,55,50,45,40,35], strNames:{1:'C',2:'G',3:'D',4:'A',5:'E',6:'B'} },
+};
+let currentTuning = '4str';
+function tuning() { return TUNINGS[currentTuning]; }
+function STR() { return tuning().strNames; }
+
+function buildNotes() {
+  const t = tuning();
+  const out = [];
+  for (let s = t.strings; s >= 1; s--) {
+    for (let f = 0; f <= 12; f++) {
+      const midi = t.openMidi[s] + f;
+      const name = NOTES12[midi % 12];
+      const oct  = Math.floor(midi / 12) - 1;
+      const key  = name + oct;
+      if (!(key in SP)) continue;
+      const sp    = SP[key];
+      const sharp = name.includes('#');
+      out.push({ id:`${s}-${f}`, string:s, fret:f, name, oct, key, sp, sharp, flat:false });
+      if (sharp && SHARP_TO_FLAT[name]) {
+        const flatName = SHARP_TO_FLAT[name];
+        // Flat notes sit one diatonic step higher on the staff than their sharp enharmonic
+        // e.g. Bb is on B's line (sp+1), not A's space like A# (sp)
+        out.push({ id:`${s}-${f}-b`, string:s, fret:f, name:flatName, oct, key:flatName+oct, sp:sp+1, sharp:false, flat:true });
+      }
+    }
+  }
+  return out;
+}
+let ALL = buildNotes();
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let S = {
+  tier: 'beginner',
+  unlockedCount: 1,
+  noteAcc: {},        // NOTE_ORDER index (as string) -> {c, w}
+  boxes: {},          // noteId -> 1-5
+};
+let sess = {
+  mode:'mix', cardN:0, correct:0, total:0,
+  missed: new Set(),   // noteIds wrong this session
+  missStreak: {},      // noteId -> consecutive wrongs
+};
+let queue = [];
+let curNote = null, curType = null, answered = false, savedCard = null, autoAdvTimer = null, wrongClickedThisCard = false;
+
+function stateKey() { return `${currentTuning}-${S.tier}`; }
+
+function saveS() {
+  try {
+    const d = JSON.parse(localStorage.getItem('lbe-bass-fc') || '{}');
+    d.tuning = currentTuning;
+    d.progress = d.progress || {};
+    d.progress[stateKey()] = { unlockedCount: S.unlockedCount, noteAcc: S.noteAcc, boxes: S.boxes };
+    localStorage.setItem('lbe-bass-fc', JSON.stringify(d));
+  } catch(e) {}
+}
+function setTuning(t) {
+  currentTuning = t;
+  ALL = buildNotes();
+  try {
+    const d = JSON.parse(localStorage.getItem('lbe-bass-fc') || '{}');
+    d.tuning = t;
+    localStorage.setItem('lbe-bass-fc', JSON.stringify(d));
+  } catch(e) {}
+  renderTuningPicker();
+  renderTierMenu();
+}
+
+function activeNotes() { return ALL.filter(n => (NOTE_ORDER[n.name] ?? 99) < S.unlockedCount); }
+function boxOf(id) { return S.boxes[id] || 1; }
+
+// ─── SCHEDULER ──────────────────────────────────────────────────────────────
+function buildQueue() {
+  const a = activeNotes();
+  queue = [...a].sort(() => Math.random() - 0.5)
+    .sort((a,b) => {
+      const am = sess.missed.has(a.id) ? 0 : boxOf(a.id);
+      const bm = sess.missed.has(b.id) ? 0 : boxOf(b.id);
+      return am - bm;
+    });
+}
+
+function pickNote() {
+  if (queue.length === 0) buildQueue();
+  // Every 3 cards, surface a missed note if any
+  if (sess.cardN > 0 && sess.cardN % 3 === 0 && sess.missed.size > 0) {
+    const ids = [...sess.missed];
+    const id  = ids[Math.floor(Math.random() * ids.length)];
+    const n   = ALL.find(x => x.id === id);
+    if (n) return n;
+  }
+  return queue.shift() || activeNotes()[0];
+}
+
+function record(note, correct) {
+  sess.total++;
+  if (correct) { sess.correct++; }
+
+  // Missed pile: enter after 2 wrongs, exit after 2 rights in a row
+  const streak = sess.missStreak[note.id] || 0;
+  if (!correct) {
+    sess.missStreak[note.id] = streak + 1;
+    if (sess.missStreak[note.id] >= 2) sess.missed.add(note.id);
+  } else {
+    sess.missStreak[note.id] = Math.max(0, streak - 1);
+    if (streak <= 1 && sess.missed.has(note.id)) sess.missed.delete(note.id);
+  }
+
+  // Note accuracy for unlock tracking
+  const ni = String(NOTE_ORDER[note.name] ?? 0);
+  const acc = S.noteAcc[ni] || {c:0,w:0};
+  correct ? acc.c++ : acc.w++;
+  S.noteAcc[ni] = acc;
+
+  // Leitner box
+  let b = boxOf(note.id);
+  S.boxes[note.id] = correct ? Math.min(5, b + 1) : 1;
+
+  checkUnlock();
+  saveS();
+}
+
+function checkUnlock() {
+  if (S.unlockedCount >= 12) return;
+  const ni = String(S.unlockedCount - 1);
+  const acc = S.noteAcc[ni] || {c:0,w:0};
+  if (acc.c + acc.w >= 8 && acc.c / (acc.c + acc.w) >= 0.80) {
+    S.unlockedCount++;
+    const newNote = NOTE_PROGRESSION[S.unlockedCount - 1];
+    if (S.unlockedCount >= 12) {
+      toast(`Full neck mastered — all 12 notes unlocked!`);
+    } else if (newNote) {
+      toast(`Unlocked: ${dispName(newNote)}! (${S.unlockedCount}/12 notes)`);
+    }
+    buildQueue();
+  }
+}
+
+// ─── SVG STAFF ──────────────────────────────────────────────────────────────
+const SVG_W = 500;
+const Y0 = 200;   // y of bottom staff line (G2, sp=0)
+const HS = 12;    // pixels per half-step
+const LX1 = 75, LX2 = 468; // staff line x range
+const NX  = 230;  // x of notehead
+
+function sy(sp) { return Y0 - sp * HS; }
+
+function staffViewBox() {
+  const active = activeNotes();
+  const loSp = active.length ? Math.min(...active.map(n=>n.sp)) : 0;
+  const hiSp = active.length ? Math.max(...active.map(n=>n.sp)) : 8;
+  // Always show the full 5-line staff (sp 0=G2 to sp 8=A3) for orientation
+  // Only extend the view further when notes go beyond that range
+  const viewLo = Math.min(loSp - 1, -1);  // include at least one ledger below if needed
+  const viewHi = Math.max(hiSp + 1, 9);   // include at least one ledger above if needed
+  const top = Math.max(0, sy(viewHi) - 20);
+  const bot = sy(Math.min(viewLo, 0)) + 24; // always include G2 (sp=0) line
+  return `0 ${top} ${SVG_W} ${bot - top}`;
+}
+
+function mkSVG(w, h) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  return svg;
+}
+function addEl(parent, tag, attrs, text) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  parent.appendChild(e);
+  return e;
+}
+
+function staffSVG(showSp, result, interactive, onZone) {
+  // result: null=none, true=correct, false=wrong
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', staffViewBox());
+  svg.setAttribute('class', 'staff-svg');
+
+  // Staff lines
+  for (let sp = 0; sp <= 8; sp += 2)
+    addEl(svg, 'line', {x1:LX1, y1:sy(sp), x2:LX2, y2:sy(sp), stroke:'#c8c8d8', 'stroke-width':'1.5'});
+
+  // Bass clef (center on staff middle line D3, sp=4)
+  addEl(svg, 'text', {
+    x:'6', y: String(sy(4)),
+    'font-family':"'Bravura','FreeSerif','Segoe UI Symbol',serif",
+    'font-size':'72', fill:'#c8c8d8', 'dominant-baseline':'middle'
+  }, '𝄢');
+
+  // Ledger lines — drawn for a shown note, and as reference guides in interactive mode
+  if (interactive) {
+    const act = activeNotes();
+    const loSp = act.length ? Math.min(...act.map(n=>n.sp)) : 0;
+    const hiSp = act.length ? Math.max(...act.map(n=>n.sp)) : 8;
+    if (loSp <= -2)
+      for (let p = -2; p >= loSp; p -= 2)
+        addEl(svg, 'line', {x1:NX-18, y1:sy(p), x2:NX+18, y2:sy(p), stroke:'#c8c8d8', 'stroke-width':'1.5'});
+    if (hiSp >= 10)
+      for (let p = 10; p <= hiSp; p += 2)
+        addEl(svg, 'line', {x1:NX-18, y1:sy(p), x2:NX+18, y2:sy(p), stroke:'#c8c8d8', 'stroke-width':'1.5'});
+  }
+  if (showSp !== null && showSp !== undefined) {
+    if (showSp <= -2)
+      for (let p = -2; p >= showSp; p -= 2)
+        addEl(svg, 'line', {x1:NX-18, y1:sy(p), x2:NX+18, y2:sy(p), stroke:'#c8c8d8', 'stroke-width':'1.5'});
+    if (showSp >= 10)
+      for (let p = 10; p <= showSp; p += 2)
+        addEl(svg, 'line', {x1:NX-18, y1:sy(p), x2:NX+18, y2:sy(p), stroke:'#c8c8d8', 'stroke-width':'1.5'});
+
+    // Accidental symbol
+    const isSharp = curNote && curNote.sp === showSp && curNote.sharp;
+    const isFlat  = curNote && curNote.sp === showSp && curNote.flat;
+    if (isSharp) {
+      addEl(svg, 'text', {
+        x: String(NX - 28), y: String(sy(showSp) + 5),
+        'font-size':'18', fill:'#c8c8d8', 'font-weight':'bold', 'text-anchor':'middle'
+      }, '#');
+    }
+    if (isFlat) {
+      addEl(svg, 'text', {
+        x: String(NX - 26), y: String(sy(showSp) + 6),
+        'font-size':'20', fill:'#c8c8d8', 'font-weight':'bold', 'text-anchor':'middle'
+      }, '♭');
+    }
+
+    // Notehead
+    const ny  = sy(showSp);
+    const col = result === true ? '#4fc3a1' : result === false ? '#e85e5e' : '#e8a838';
+    addEl(svg, 'ellipse', {
+      cx:String(NX), cy:String(ny), rx:'10', ry:'7',
+      fill:col, transform:`rotate(-15,${NX},${ny})`
+    });
+    // Stem: up-stem (right side) for low notes, down-stem (left side) for high
+    const stemUp = showSp <= 4;
+    addEl(svg, 'line', {
+      x1:String(stemUp ? NX+9 : NX-9), y1:String(ny),
+      x2:String(stemUp ? NX+9 : NX-9), y2:String(stemUp ? ny-40 : ny+40),
+      stroke:col, 'stroke-width':'1.5'
+    });
+  }
+
+  // Clickable zones
+  if (interactive) {
+    const active = activeNotes();
+    const minSp = active.length ? Math.min(...active.map(n=>n.sp)) - 1 : -2;
+    const maxSp = active.length ? Math.max(...active.map(n=>n.sp)) + 1 : 8;
+    for (let p = minSp; p <= maxSp; p++) {
+      const z = addEl(svg, 'rect', {
+        x:String(LX1 - 8), y:String(sy(p) - HS/2),
+        width:String(LX2 - LX1 + 16), height:String(HS),
+        'class':'sz', 'data-sp':String(p)
+      });
+      z.addEventListener('pointerdown', (e) => { e.preventDefault(); if (!answered) onZone(p); });
+    }
+  }
+  return svg;
+}
+
+// ─── NECK SVG ───────────────────────────────────────────────────────────────
+// small=true renders a compact version for choice buttons
+function neckSVG(tStr, tFret, small) {
+  const t = tuning(), nS = t.strings;
+
+  if (small) {
+    // Full 12-fret neck with position marker dots; fret label is rendered as HTML outside the SVG
+    const FW=13, SG=10, ML=20, MT=6, NFRETS=12;
+    const W = ML + NFRETS*FW + 6, H = MT + (nS-1)*SG + 6;
+    const svg = mkSVG(W, H);
+    svg.setAttribute('class', 'neck-svg');
+    // Nut
+    addEl(svg,'line',{x1:String(ML),y1:String(MT-2),x2:String(ML),y2:String(MT+(nS-1)*SG+2),stroke:'#ddd','stroke-width':'3'});
+    // Fret wires
+    for (let f=0; f<=NFRETS; f++)
+      addEl(svg,'line',{x1:String(ML+f*FW),y1:String(MT),x2:String(ML+f*FW),y2:String(MT+(nS-1)*SG),stroke:'#666','stroke-width':'1'});
+    // Strings
+    for (let s=1; s<=nS; s++) {
+      const y = MT + (s-1)*SG;
+      const thick = s===nS ? '2' : s===nS-1 ? '1.5' : '1.2';
+      addEl(svg,'line',{x1:String(ML),y1:String(y),x2:String(ML+NFRETS*FW),y2:String(y),stroke:'#bbb','stroke-width':thick});
+    }
+    // Position marker dots at 3, 5, 7, 9, 12
+    for (const f of [3,5,7,9,12]) {
+      const x = ML + (f-0.5)*FW;
+      addEl(svg,'circle',{cx:String(x),cy:String(MT+((nS-1)/2)*SG),r:'2.5',fill:'#666'});
+    }
+    // Target dot
+    if (tStr!==null) {
+      const dx = tFret===0 ? ML-11 : ML+(tFret-0.5)*FW;
+      const dy = MT + (tStr-1)*SG;
+      addEl(svg,'circle',{cx:String(dx),cy:String(dy),r:'7',fill:'#e8a838'});
+      addEl(svg,'circle',{cx:String(dx),cy:String(dy),r:'7',fill:'none',stroke:'#000','stroke-width':'1.5'});
+    }
+    return svg;
+  }
+
+  // Full neck (non-small)
+  const FW=22, SG=13, ML=30, MT=10, NFRETS=12;
+  const W = ML+NFRETS*FW+6, H = MT+(nS-1)*SG+18;
+  const svg = mkSVG(W, H);
+  svg.setAttribute('class', 'neck-svg');
+  addEl(svg,'line',{x1:String(ML),y1:String(MT-2),x2:String(ML),y2:String(MT+(nS-1)*SG+2),stroke:'#ddd','stroke-width':'3'});
+  for (let f=0; f<=NFRETS; f++)
+    addEl(svg,'line',{x1:String(ML+f*FW),y1:String(MT),x2:String(ML+f*FW),y2:String(MT+(nS-1)*SG),stroke:'#666','stroke-width':'1'});
+  for (let s=1; s<=nS; s++) {
+    const y = MT + (s-1)*SG;
+    const thick = s===nS ? '2' : s===nS-1 ? '1.5' : '1.2';
+    addEl(svg,'line',{x1:String(ML),y1:String(y),x2:String(ML+NFRETS*FW),y2:String(y),stroke:'#bbb','stroke-width':thick});
+    addEl(svg,'text',{x:'4',y:String(y+4),'font-size':'8',fill:'#999','text-anchor':'middle'},STR()[s]);
+  }
+  for (const f of [3,5,7,9,12]) {
+    const x = ML+(f-0.5)*FW;
+    addEl(svg,'circle',{cx:String(x),cy:String(MT+((nS-1)/2)*SG),r:'3',fill:'#666'});
+  }
+  if (tStr!==null) {
+    const dx = tFret===0 ? ML-10 : ML+(tFret-0.5)*FW;
+    const dy = MT + (tStr-1)*SG;
+    addEl(svg,'circle',{cx:String(dx),cy:String(dy),r:'7',fill:'#e8a838'});
+    addEl(svg,'circle',{cx:String(dx),cy:String(dy),r:'7',fill:'none',stroke:'#000','stroke-width':'1.5'});
+  }
+  return svg;
+}
+
+// ─── CARD RENDERING ─────────────────────────────────────────────────────────
+function cardType(mode) {
+  if (mode === 'A') return 'A';
+  if (mode === 'B') return Math.random() < 0.5 ? 'Bfwd' : 'Brev';
+  const r = Math.random();
+  return r < 0.4 ? 'A' : r < 0.7 ? 'Bfwd' : 'Brev';
+}
+
+function renderCard() {
+  const area = document.getElementById('card-area');
+  area.innerHTML = '';
+  const lbl = Object.assign(document.createElement('div'), {className:'card-lbl'});
+
+  if (curType === 'A') {
+    lbl.textContent = 'Find it on the staff — tap the right position';
+    area.appendChild(lbl);
+    renderA(area);
+  } else if (curType === 'Bfwd') {
+    lbl.textContent = 'Name that note';
+    area.appendChild(lbl);
+    renderBfwd(area);
+  } else {
+    lbl.textContent = 'Find it on the neck';
+    area.appendChild(lbl);
+    renderBrev(area);
+  }
+}
+
+function renderA(a) {
+  const nd = Object.assign(document.createElement('div'), {className:'note-big'});
+  nd.textContent = dispName(curNote);
+  a.appendChild(nd);
+
+  const fl = Object.assign(document.createElement('div'), {className:'fret-lbl'});
+  fl.textContent = `${STR()[curNote.string]} string · fret ${curNote.fret}`;
+  a.appendChild(fl);
+
+  const nw = document.createElement('div'); nw.style.width='100%';
+  nw.appendChild(neckSVG(curNote.string, curNote.fret));
+  a.appendChild(nw);
+
+  const hint = Object.assign(document.createElement('div'),{className:'staff-hint'});
+  hint.textContent = 'Tap the correct position on the staff below';
+  a.appendChild(hint);
+
+  const sw = Object.assign(document.createElement('div'),{id:'sw',style:'width:100%'});
+  sw.appendChild(staffSVG(null, null, true, handleStaffTap));
+  a.appendChild(sw);
+}
+
+function renderBfwd(a) {
+  const nw = document.createElement('div'); nw.style.width='100%';
+  nw.appendChild(neckSVG(curNote.string, curNote.fret));
+  a.appendChild(nw);
+
+  const fl = Object.assign(document.createElement('div'),{className:'fret-lbl',style:'margin-bottom:6px'});
+  fl.textContent = `${STR()[curNote.string]} string · fret ${curNote.fret}`;
+  a.appendChild(fl);
+
+  const grid = Object.assign(document.createElement('div'),{className:'choices'});
+  nameChoices().forEach(nm => {
+    const b = Object.assign(document.createElement('button'),{className:'cbtn'});
+    b.textContent = dispName(nm);
+    b.dataset.name = nm;
+    const enh = curNote.sharp ? SHARP_TO_FLAT[curNote.name] : (curNote.flat ? FLAT_TO_SHARP[curNote.name] : null);
+    const isCorrect = nm === curNote.name || nm === enh;
+    b.onclick = () => handleChoice(isCorrect, b, grid);
+    grid.appendChild(b);
+  });
+  a.appendChild(grid);
+}
+
+function renderBrev(a) {
+  // Show note on staff + its name
+  const sw = Object.assign(document.createElement('div'),{id:'sw',style:'width:100%;margin-bottom:4px'});
+  sw.appendChild(staffSVG(curNote.sp, null, false, null));
+  a.appendChild(sw);
+
+  const nh = Object.assign(document.createElement('div'),{className:'note-big',style:'margin-bottom:6px'});
+  nh.textContent = dispName(curNote);
+  a.appendChild(nh);
+
+  // 4 mini neck diagrams — tap the correct position
+  const lbl2 = Object.assign(document.createElement('div'),{className:'staff-hint',style:'margin-bottom:6px'});
+  lbl2.textContent = 'Tap where this note is on the neck';
+  a.appendChild(lbl2);
+
+  const grid = Object.assign(document.createElement('div'),{className:'choices'});
+  fretChoices().forEach(({string, fret}) => {
+    const b = document.createElement('button');
+    b.className = 'cbtn';
+    b.style.cssText = 'padding:6px 6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;';
+    b.dataset.string = String(string);
+    b.dataset.fret   = String(fret);
+    b.appendChild(neckSVG(string, fret, true));
+    const strName = STR()[string] || '';
+    const lbl = Object.assign(document.createElement('span'),{
+      textContent: fret === 0 ? `${strName} str · open` : `${strName} str · fret ${fret}`
+    });
+    lbl.style.cssText = 'font-size:0.68rem;color:var(--text);font-weight:600;line-height:1;text-align:center;';
+    b.appendChild(lbl);
+    // Any position that plays the same note name is correct
+    const isCorrect = ALL.some(n => n.string === string && n.fret === fret && n.name === curNote.name);
+    b.onclick = () => handleChoice(isCorrect, b, grid);
+    grid.appendChild(b);
+  });
+  a.appendChild(grid);
+}
+
+// ─── CHOICE HELPERS ─────────────────────────────────────────────────────────
+function nameChoices() {
+  const cor = curNote.name;
+  const enh = curNote.sharp ? SHARP_TO_FLAT[cor] : (curNote.flat ? FLAT_TO_SHARP[cor] : null);
+  // For Bfwd: include the enharmonic as a second correct option (same fret, both names valid)
+  const pool = [...new Set(ALL.map(n => n.name))].filter(n => n !== cor && n !== enh);
+  const numDis = enh ? 2 : 3;
+  const dis = pool.sort(() => Math.random()-0.5).slice(0, numDis);
+  const choices = enh ? [cor, enh, ...dis] : [cor, ...dis];
+  return choices.sort(() => Math.random()-0.5);
+}
+
+function fretChoices() {
+  const cor = { string: curNote.string, fret: curNote.fret };
+  const samePos = (n) => n.string === curNote.string && n.fret === curNote.fret;
+  // Distractors: different fret position, different staff pos preferred
+  let pool = activeNotes().filter(n => !samePos(n) && Math.abs(n.sp - curNote.sp) >= 2);
+  if (pool.length < 3) pool = activeNotes().filter(n => !samePos(n));
+  // Dedup by (string, fret) so enharmonic variants don't double-appear
+  const seen = new Set([`${curNote.string}-${curNote.fret}`]);
+  const dis = [];
+  for (const n of pool.sort(() => Math.random()-0.5)) {
+    const k = `${n.string}-${n.fret}`;
+    if (!seen.has(k)) { seen.add(k); dis.push(n); }
+    if (dis.length >= 3) break;
+  }
+  if (dis.length < 3) {
+    for (const n of ALL.filter(n => !samePos(n)).sort(() => Math.random()-0.5)) {
+      const k = `${n.string}-${n.fret}`;
+      if (!seen.has(k)) { seen.add(k); dis.push(n); }
+      if (dis.length >= 3) break;
+    }
+  }
+  return [cor,...dis.map(n=>({string:n.string, fret:n.fret}))].sort(()=>Math.random()-0.5);
+}
+
+// ─── ANSWER HANDLERS ────────────────────────────────────────────────────────
+function handleStaffTap(sp) {
+  if (answered) return;
+  answered = true;
+  const correct = sp === curNote.sp;
+  // Redraw staff showing result
+  const sw = document.getElementById('sw');
+  sw.innerHTML = '';
+  sw.appendChild(staffSVG(curNote.sp, correct, false, null));
+  finish(correct);
+}
+
+function handleChoice(correct, btn, grid) {
+  if (answered) return;
+
+  if (!correct) {
+    // Wrong — disable this button, allow retry on remaining choices
+    btn.classList.add('no');
+    btn.disabled = true;
+    if (!wrongClickedThisCard) {
+      wrongClickedThisCard = true;
+      if (sess.reviewOffset === 0) {
+        record(curNote, false);
+        sess.history.push({note: curNote, type: curType, correct: false});
+        updateSessHdr();
+      }
+    }
+    const fba = document.getElementById('fb-area');
+    fba.innerHTML = '';
+    const fb = Object.assign(document.createElement('div'), {className:'fb no'});
+    fb.textContent = 'Try again';
+    fba.appendChild(fb);
+    return;
+  }
+
+  // Correct
+  answered = true;
+  btn.classList.add('ok');
+  Array.from(grid.querySelectorAll('.cbtn')).forEach(b => b.disabled = true);
+  finish(correct, !wrongClickedThisCard);
+}
+
+function finish(correct, shouldRecord = true) {
+  if (autoAdvTimer) { clearTimeout(autoAdvTimer); autoAdvTimer = null; }
+  if (sess.reviewOffset === 0 && shouldRecord) {
+    record(curNote, correct);
+    sess.history.push({note: curNote, type: curType, correct});
+  }
+  updateSessHdr();
+
+  const fba = document.getElementById('fb-area');
+  const fb  = Object.assign(document.createElement('div'), {className:`fb ${correct?'ok':'no'}`});
+  const nl = dispName(curNote);
+  fb.textContent = correct
+    ? `✓ ${nl} — ${STR()[curNote.string]} string, fret ${curNote.fret}`
+    : `✗ That's ${nl} — ${STR()[curNote.string]} string, fret ${curNote.fret}`;
+  fba.innerHTML = ''; fba.appendChild(fb);
+
+  if (correct) {
+    playCorrectNote();
+    updateNavBtns();
+    autoAdvTimer = setTimeout(() => { autoAdvTimer = null; nextCard(); }, 1000);
+  } else {
+    const nb = document.getElementById('next-btn');
+    nb.classList.remove('hidden');
+    nb.textContent = sess.total >= 20 ? 'Finish session →' : 'Next →';
+    updateNavBtns();
+  }
+}
+
+// ─── SESSION FLOW ────────────────────────────────────────────────────────────
+function startSession(tier) {
+  if (autoAdvTimer) { clearTimeout(autoAdvTimer); autoAdvTimer = null; }
+  // Load saved state for this tuning + tier
+  try {
+    const d = JSON.parse(localStorage.getItem('lbe-bass-fc') || '{}');
+    const k = `${currentTuning}-${tier}`;
+    const p = (d.progress || {})[k] || {};
+    S = {
+      tier,
+      unlockedCount: p.unlockedCount || TIERS[tier].startCount,
+      noteAcc: p.noteAcc || {},
+      boxes: p.boxes || {},
+    };
+  } catch(e) {
+    S = { tier, unlockedCount: TIERS[tier].startCount, noteAcc: {}, boxes: {} };
+  }
+  sess = { mode:'mix', cardN:0, correct:0, total:0, missed:new Set(), missStreak:{}, history:[], reviewOffset:0 };
+  savedCard = null;
+  buildQueue();
+  showScreen('session');
+  nextCard();
+}
+
+function nextCard() {
+  if (sess.reviewOffset > 0) {
+    sess.reviewOffset--;
+    if (sess.reviewOffset > 0) {
+      showHistoryCard();
+    } else if (savedCard) {
+      // Return to the unanswered card that was interrupted
+      curNote = savedCard.note; curType = savedCard.type;
+      savedCard = null;
+      answered = false;
+      document.getElementById('next-btn').classList.add('hidden');
+      document.getElementById('fb-area').innerHTML = '';
+      renderCard();
+      updateNavBtns();
+    } else {
+      // Return to the most recently answered card's result view
+      const h = sess.history[sess.history.length - 1];
+      curNote = h.note; curType = h.type; answered = true;
+      document.getElementById('fb-area').innerHTML = '';
+      renderCard();
+      revealAnswer(h.correct);
+      const nb = document.getElementById('next-btn');
+      nb.classList.remove('hidden');
+      nb.textContent = sess.total >= 20 ? 'Finish session →' : 'Next →';
+      updateNavBtns();
+    }
+    return;
+  }
+  if (sess.total >= 20) { showSummary(); return; }
+  answered = false;
+  wrongClickedThisCard = false;
+  document.getElementById('next-btn').classList.add('hidden');
+  document.getElementById('fb-area').innerHTML = '';
+  curNote = pickNote();
+  curType = cardType(sess.mode);
+  sess.cardN++;
+  updateSessHdr();
+  renderCard();
+  updateNavBtns();
+}
+
+function goBack() {
+  if (autoAdvTimer) { clearTimeout(autoAdvTimer); autoAdvTimer = null; }
+  const maxBack = Math.min(3, sess.history.length);
+  if (sess.reviewOffset >= maxBack) return;
+  if (sess.reviewOffset === 0 && !answered) {
+    savedCard = {note: curNote, type: curType};
+  }
+  sess.reviewOffset++;
+  showHistoryCard();
+}
+
+function showHistoryCard() {
+  const h = sess.history[sess.history.length - sess.reviewOffset];
+  curNote = h.note; curType = h.type; answered = true;
+  document.getElementById('fb-area').innerHTML = '';
+  renderCard();
+  revealAnswer(h.correct);
+  const nb = document.getElementById('next-btn');
+  nb.classList.remove('hidden');
+  nb.textContent = 'Next →';
+  updateNavBtns();
+}
+
+function revealAnswer(wasCorrect) {
+  if (curType === 'A') {
+    const sw = document.getElementById('sw');
+    if (sw) { sw.innerHTML = ''; sw.appendChild(staffSVG(curNote.sp, wasCorrect, false, null)); }
+  }
+  document.querySelectorAll('.cbtn').forEach(b => {
+    b.disabled = true;
+    if (curType === 'Bfwd') {
+      const enh = curNote.sharp ? SHARP_TO_FLAT[curNote.name] : (curNote.flat ? FLAT_TO_SHARP[curNote.name] : null);
+      if (b.dataset.name === curNote.name || b.dataset.name === enh) b.classList.add('ok');
+    }
+    if (curType === 'Brev') {
+      const bStr = parseInt(b.dataset.string), bFret = parseInt(b.dataset.fret);
+      if (ALL.some(n => n.string === bStr && n.fret === bFret && n.name === curNote.name)) b.classList.add('ok');
+    }
+  });
+  const fba = document.getElementById('fb-area');
+  const fb = Object.assign(document.createElement('div'), {className:`fb ${wasCorrect?'ok':'no'}`});
+  fb.textContent = wasCorrect
+    ? `✓ ${dispName(curNote)} — ${STR()[curNote.string]} string, fret ${curNote.fret}`
+    : `✗ That's ${dispName(curNote)} — ${STR()[curNote.string]} string, fret ${curNote.fret}`;
+  fba.innerHTML = ''; fba.appendChild(fb);
+}
+
+function updateNavBtns() {
+  const bb = document.getElementById('back-btn');
+  if (!bb) return;
+  const canBack = sess.reviewOffset < Math.min(3, sess.history.length);
+  bb.classList.toggle('hidden', !canBack);
+}
+
+function updateSessHdr() {
+  const noteProg = `${Math.min(S.unlockedCount, 12)}/12 notes`;
+  document.getElementById('sess-info').textContent =
+    `${noteProg}  ·  ${sess.correct}/${sess.total}`;
+}
+
+// ─── SUMMARY ────────────────────────────────────────────────────────────────
+function showSummary() {
+  showScreen('summary');
+  const pct = sess.total > 0 ? Math.round(sess.correct/sess.total*100) : 0;
+  const fullUnlock = S.unlockedCount >= 12;
+  const h2 = document.querySelector('#screen-summary h2');
+  h2.textContent = fullUnlock ? 'Full neck mastered!' : 'Nice work!';
+  document.getElementById('sum-stats').innerHTML = `
+    <div class="srow"><span class="srow-lbl">Notes unlocked</span><span class="srow-val" style="${fullUnlock ? 'color:var(--green);font-weight:700' : ''}">${Math.min(S.unlockedCount,12)}/12${fullUnlock ? ' ✓' : ''}</span></div>
+    <div class="srow"><span class="srow-lbl">Cards answered</span><span class="srow-val">${sess.total}</span></div>
+    <div class="srow"><span class="srow-lbl">Correct</span><span class="srow-val">${sess.correct} (${pct}%)</span></div>
+  `;
+  const ms = document.getElementById('sum-missed');
+  if (sess.missed.size > 0) {
+    ms.classList.remove('hidden');
+    const tags = [...sess.missed].map(id => {
+      const n = ALL.find(x => x.id === id);
+      return n ? `<span class="mtag">${dispName(n)}${n.oct} (${STR()[n.string]} fr.${n.fret})</span>` : '';
+    }).join('');
+    ms.innerHTML = `<h3>Keep practicing these</h3>${tags}`;
+  } else ms.classList.add('hidden');
+}
+
+// ─── SCREEN / HOME ──────────────────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('#app > div').forEach(d => d.classList.add('hidden'));
+  document.getElementById('screen-' + name).classList.remove('hidden');
+}
+
+function goHome() { showScreen('home'); }
+
+function updateHome() {}
+
+// ─── TUNING PICKER ──────────────────────────────────────────────────────────
+function renderTuningPicker() {
+  const el = document.getElementById('tuning-picker');
+  if (!el) return;
+  el.innerHTML = '';
+  for (const [key, t] of Object.entries(TUNINGS)) {
+    const b = document.createElement('button');
+    b.textContent = t.label;
+    const active = key === currentTuning;
+    b.style.cssText = `flex:1;min-width:70px;padding:8px 4px;border-radius:8px;border:1.5px solid;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.15s;${active ? 'background:var(--accent);color:#000;border-color:var(--accent)' : 'background:var(--card);color:var(--text);border-color:var(--border)'}`;
+    b.onclick = () => setTuning(key);
+    el.appendChild(b);
+  }
+}
+
+// ─── TIER MENU ───────────────────────────────────────────────────────────────
+function renderTierMenu() {
+  const el = document.getElementById('tier-menu');
+  if (!el) return;
+  el.innerHTML = '';
+  let d = {};
+  try { d = JSON.parse(localStorage.getItem('lbe-bass-fc') || '{}'); } catch(e) {}
+  for (const [key, tier] of Object.entries(TIERS)) {
+    const k = `${currentTuning}-${key}`;
+    const p = (d.progress || {})[k] || {};
+    const unlocked = p.unlockedCount || tier.startCount;
+    const isPri = key === 'beginner';
+    const btn = document.createElement('button');
+    btn.className = `btn${isPri ? ' pri' : ''}`;
+    btn.textContent = tier.label;
+    btn.onclick = () => startSession(key);
+    el.appendChild(btn);
+  }
+}
+
+// ─── AUDIO ───────────────────────────────────────────────────────────────────
+let _actx = null;
+function actx() {
+  if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_actx.state === 'suspended') _actx.resume();
+  return _actx;
+}
+
+function playNoteFreq(midiNote) {
+  try {
+  const ctx = actx();
+  const now = ctx.currentTime;
+  const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+
+  // Low-pass filter closes over time → warm pluck character
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(1200, now);
+  lp.frequency.exponentialRampToValueAtTime(300, now + 0.4);
+  lp.Q.setValueAtTime(1.2, now);
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0, now);
+  master.gain.linearRampToValueAtTime(0.55, now + 0.003); // instant pluck
+  master.gain.exponentialRampToValueAtTime(0.22, now + 0.09); // fast decay
+  master.gain.exponentialRampToValueAtTime(0.001, now + 2.0); // slow release
+
+  lp.connect(master);
+  master.connect(ctx.destination);
+
+  // Sine + triangle stack — warm, not buzzy
+  [
+    { mult: 1,   vol: 1.0,  type: 'sine'     }, // fundamental
+    { mult: 2,   vol: 0.28, type: 'triangle' }, // 2nd harmonic — warmth
+    { mult: 3,   vol: 0.08, type: 'sine'     }, // 3rd harmonic — presence
+    { mult: 0.5, vol: 0.45, type: 'sine'     }, // sub octave — fat low end
+  ].forEach(({mult, vol, type}) => {
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq * mult, now);
+    g.gain.setValueAtTime(vol, now);
+    osc.connect(g);
+    g.connect(lp);
+    osc.start(now);
+    osc.stop(now + 2.1);
+  });
+  } catch(e) { /* audio unavailable */ }
+}
+
+function playCorrectNote() {
+  if (!curNote) return;
+  const t = tuning();
+  const midi = t.openMidi[curNote.string] + curNote.fret;
+  playNoteFreq(midi);
+}
+
+// ─── TOAST ──────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = Object.assign(document.createElement('div'),{className:'toast',textContent:msg});
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+(function initApp() {
+  try {
+    const d = JSON.parse(localStorage.getItem('lbe-bass-fc') || 'null');
+    if (d && d.tuning) currentTuning = d.tuning;
+  } catch(e) {}
+  ALL = buildNotes();
+  renderTuningPicker();
+  renderTierMenu();
+})();
+</script>
+</body>
+</html>
