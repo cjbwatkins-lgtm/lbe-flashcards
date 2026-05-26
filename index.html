@@ -464,8 +464,9 @@ function addEl(parent, tag, attrs, text) {
   return e;
 }
 
-function staffSVG(showSp, result, interactive, onZone) {
+function staffSVG(showSp, result, interactive, onZone, tappedSp) {
   // result: null=none, true=correct, false=wrong
+  // tappedSp: when wrong on Type A, the sp the user actually tapped (shown as red indicator)
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', staffViewBox());
   svg.setAttribute('class', 'staff-svg');
@@ -517,9 +518,33 @@ function staffSVG(showSp, result, interactive, onZone) {
       }, '♭');
     }
 
-    // Notehead
+    // Tapped-position indicator — shown when user tapped wrong on Type A
+    // Rendered BEFORE the correct note so it sits behind it if positions overlap
+    if (tappedSp !== null && tappedSp !== undefined && tappedSp !== showSp) {
+      // Draw ledger lines for out-of-staff tapped positions
+      if (tappedSp <= -2)
+        for (let p = -2; p >= tappedSp; p -= 2)
+          addEl(svg, 'line', {x1:NX-18, y1:sy(p), x2:NX+18, y2:sy(p), stroke:'rgba(200,200,216,0.4)', 'stroke-width':'1.5'});
+      if (tappedSp >= 10)
+        for (let p = 10; p <= tappedSp; p += 2)
+          addEl(svg, 'line', {x1:NX-18, y1:sy(p), x2:NX+18, y2:sy(p), stroke:'rgba(200,200,216,0.4)', 'stroke-width':'1.5'});
+      const ty = sy(tappedSp);
+      addEl(svg, 'ellipse', {
+        cx:String(NX), cy:String(ty), rx:'10', ry:'7',
+        fill:'none', stroke:'#e85e5e', 'stroke-width':'2',
+        transform:`rotate(-15,${NX},${ty})`
+      });
+      // Small ✕ centered in the hollow note
+      addEl(svg, 'text', {
+        x:String(NX), y:String(ty+4),
+        'font-size':'9', fill:'#e85e5e', 'text-anchor':'middle', 'font-weight':'bold', 'dominant-baseline':'auto'
+      }, '✕');
+    }
+
+    // Notehead (correct position)
     const ny  = sy(showSp);
-    const col = result === true ? '#4fc3a1' : result === false ? '#e85e5e' : '#e8a838';
+    // When wrong: show correct position in amber (not red) — red is used for the tapped indicator above
+    const col = result === true ? '#4fc3a1' : result === false ? '#e8a838' : '#e8a838';
     addEl(svg, 'ellipse', {
       cx:String(NX), cy:String(ny), rx:'10', ry:'7',
       fill:col, transform:`rotate(-15,${NX},${ny})`
@@ -533,42 +558,71 @@ function staffSVG(showSp, result, interactive, onZone) {
     });
   }
 
-  // Clickable zones — single SVG listener computes sp from tap Y coordinate
-  // (individual 12px rects were too small to reliably tap on mobile)
+  // Clickable zones — hold-to-preview: pointerdown highlights the zone,
+  // sliding the finger adjusts it, releasing (pointerup) commits the answer.
+  // This lets the user see exactly where they'll land before committing.
   if (interactive) {
     const active = activeNotes();
     const minSp = active.length ? Math.min(...active.map(n=>n.sp)) - 1 : -2;
     const maxSp = active.length ? Math.max(...active.map(n=>n.sp)) + 1 : 8;
-    // Visual hover highlight rects (pointer-events:none — events go to SVG)
+    // Visual highlight rects (pointer-events:none — events go to the SVG element)
     for (let p = minSp; p <= maxSp; p++) {
       addEl(svg, 'rect', {
         x:String(LX1 - 8), y:String(sy(p) - HS/2),
         width:String(LX2 - LX1 + 16), height:String(HS),
-        'class':'sz', 'data-sp':String(p), 'pointer-events':'none'
+        'class':'sz', 'data-sp':String(p), 'pointer-events':'none', fill:'transparent'
       });
     }
     svg.style.cursor = 'pointer';
+
+    function computeSp(clientY) {
+      const rect = svg.getBoundingClientRect();
+      const vb   = svg.viewBox.baseVal;
+      const clickY = vb.y + (clientY - rect.top) / rect.height * vb.height;
+      return Math.max(minSp, Math.min(maxSp, Math.round((Y0 - clickY) / HS)));
+    }
+    function setHighlight(sp) {
+      svg.querySelectorAll('.sz').forEach(r => {
+        r.setAttribute('fill', parseInt(r.getAttribute('data-sp')) === sp
+          ? 'rgba(232,168,56,0.35)' : 'transparent');
+      });
+    }
+
+    let touchSp = null;
+
     svg.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       if (answered) return;
-      const rect = svg.getBoundingClientRect();
-      const vb   = svg.viewBox.baseVal;
-      const clickY = vb.y + (e.clientY - rect.top) / rect.height * vb.height;
-      const sp = Math.round((Y0 - clickY) / HS);
-      onZone(Math.max(minSp, Math.min(maxSp, sp)));
+      svg.setPointerCapture(e.pointerId);
+      touchSp = computeSp(e.clientY);
+      setHighlight(touchSp);
     });
-    // Hover highlight on desktop (mousemove → highlight nearest zone rect)
+    svg.addEventListener('pointermove', (e) => {
+      if (touchSp === null || answered) return;
+      e.preventDefault();
+      touchSp = computeSp(e.clientY);
+      setHighlight(touchSp);
+    });
+    svg.addEventListener('pointerup', (e) => {
+      if (touchSp === null || answered) { touchSp = null; return; }
+      const sp = touchSp;
+      touchSp = null;
+      setHighlight(-999); // clear all highlights
+      onZone(sp);
+    });
+    svg.addEventListener('pointercancel', () => {
+      touchSp = null;
+      setHighlight(-999);
+    });
+
+    // Desktop hover highlight (only when no touch in progress)
     svg.addEventListener('mousemove', (e) => {
-      const rect = svg.getBoundingClientRect();
-      const vb   = svg.viewBox.baseVal;
-      const clickY = vb.y + (e.clientY - rect.top) / rect.height * vb.height;
-      const sp = Math.round((Y0 - clickY) / HS);
-      svg.querySelectorAll('.sz').forEach(r => {
-        r.setAttribute('fill', parseInt(r.getAttribute('data-sp')) === sp ? 'rgba(232,168,56,0.12)' : 'transparent');
-      });
+      if (touchSp !== null || answered) return;
+      setHighlight(computeSp(e.clientY));
     });
     svg.addEventListener('mouseleave', () => {
-      svg.querySelectorAll('.sz').forEach(r => r.setAttribute('fill', 'transparent'));
+      if (touchSp !== null) return;
+      setHighlight(-999);
     });
   }
   return svg;
@@ -680,7 +734,7 @@ function renderA(a) {
   a.appendChild(nw);
 
   const hint = Object.assign(document.createElement('div'),{className:'staff-hint'});
-  hint.textContent = 'Tap the correct position on the staff below';
+  hint.textContent = 'Press and slide to the right position, then release';
   a.appendChild(hint);
 
   const sw = Object.assign(document.createElement('div'),{id:'sw',style:'width:100%'});
@@ -795,7 +849,7 @@ function handleStaffTap(sp) {
   // Redraw staff showing result
   const sw = document.getElementById('sw');
   sw.innerHTML = '';
-  sw.appendChild(staffSVG(curNote.sp, correct, false, null));
+  sw.appendChild(staffSVG(curNote.sp, correct, false, null, correct ? null : sp));
   finish(correct);
 }
 
