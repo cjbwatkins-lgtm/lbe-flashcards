@@ -658,7 +658,7 @@ function renderBrev(a) {
     lbl.style.cssText = 'font-size:0.68rem;color:var(--text);font-weight:600;line-height:1;text-align:center;';
     b.appendChild(lbl);
     // Any position that plays the same note name is correct
-    const isCorrect = ALL.some(n => n.string === string && n.fret === fret && n.name === curNote.name);
+    const isCorrect = ALL.some(n => n.string === string && n.fret === fret && n.name === curNote.name && n.oct === curNote.oct);
     b.onclick = () => handleChoice(isCorrect, b, grid);
     grid.appendChild(b);
   });
@@ -872,7 +872,7 @@ function revealAnswer(wasCorrect) {
     }
     if (curType === 'Brev') {
       const bStr = parseInt(b.dataset.string), bFret = parseInt(b.dataset.fret);
-      if (ALL.some(n => n.string === bStr && n.fret === bFret && n.name === curNote.name)) b.classList.add('ok');
+      if (ALL.some(n => n.string === bStr && n.fret === bFret && n.name === curNote.name && n.oct === curNote.oct)) b.classList.add('ok');
     }
   });
   const fba = document.getElementById('fb-area');
