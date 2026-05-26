@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bass Notes – LBE Flashcards</title>
+<title>Bass Notes – Live Bass Essentials</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0f0f14;
@@ -25,10 +28,55 @@ body {
 #app { width: 100%; max-width: 500px; padding: 16px 16px 40px; }
 .hidden { display: none !important; }
 
-/* HOME */
-.hdr { text-align: center; padding: 28px 0 20px; }
-.hdr h1 { font-size: 1.5rem; color: var(--accent); }
-.hdr p { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+/* BRAND MARK */
+.brand-mark {
+  position: relative;
+  text-align: center;
+  padding: 30px 0 22px;
+  overflow: visible;
+}
+.brand-blobs {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -56%);
+  width: 260px; height: 110px;
+  pointer-events: none;
+}
+.bblob { position: absolute; border-radius: 50%; }
+.bb-blue  { background: #3a6db5; width: 130px; height: 120px; top: -5px;  left: 60px;  filter: blur(30px); opacity: 0.32; }
+.bb-red   { background: #b83838; width:  90px; height:  85px; top:  5px;  left:  8px;  filter: blur(24px); opacity: 0.28; }
+.bb-gold  { background: #e8a838; width:  80px; height:  75px; top: -5px;  right: 12px; filter: blur(22px); opacity: 0.30; }
+/* diagonal accent lines, logo-inspired */
+.brand-mark::before, .brand-mark::after {
+  content: ''; position: absolute;
+  background: rgba(232,168,56,0.28); border-radius: 1px;
+  width: 52px; height: 1.5px;
+  transform: rotate(-38deg);
+}
+.brand-mark::before { top: 28px; left: 12px; }
+.brand-mark::after  { bottom: 30px; right: 12px; }
+.brand-text {
+  position: relative; z-index: 1; line-height: 1;
+  font-family: 'Oswald', system-ui, sans-serif;
+}
+.bm-live {
+  display: block; font-size: 0.72rem; font-weight: 400;
+  letter-spacing: 0.38em; color: rgba(240,240,240,0.55); margin-bottom: 2px;
+}
+.bm-bass {
+  display: block; font-size: 3rem; font-weight: 700;
+  color: var(--accent); letter-spacing: 0.07em; line-height: 1;
+}
+.bm-ess {
+  display: block; font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.42em; color: rgba(240,240,240,0.38); margin-top: 3px;
+}
+.bm-rule {
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,168,56,0.5), transparent);
+  margin: 13px auto 9px;
+}
+.bm-sub { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.03em; }
 .lbadge {
   display: inline-block; background: var(--accent); color: #000;
   font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px;
@@ -148,9 +196,19 @@ body {
 
 <!-- HOME -->
 <div id="screen-home">
-  <div class="hdr">
-    <h1>Bass Notes</h1>
-    <p>Learn the notes on your bass</p>
+  <div class="brand-mark">
+    <div class="brand-blobs">
+      <div class="bblob bb-blue"></div>
+      <div class="bblob bb-red"></div>
+      <div class="bblob bb-gold"></div>
+    </div>
+    <div class="brand-text">
+      <span class="bm-live">LIVE</span>
+      <span class="bm-bass">BASS</span>
+      <span class="bm-ess">ESSENTIALS</span>
+    </div>
+    <div class="bm-rule"></div>
+    <div class="bm-sub">Note Flashcards</div>
   </div>
   <div id="tuning-picker" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;"></div>
   <div class="menu" id="tier-menu"></div>
